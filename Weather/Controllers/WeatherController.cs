@@ -42,7 +42,7 @@ namespace Weather.Web.Controllers
         {
             if (files.Count == 0)
             {
-                return BadRequest();
+                return RedirectToAction("Index");
             }
             foreach (var file in files)
             {               
