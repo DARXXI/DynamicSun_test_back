@@ -42,7 +42,7 @@ namespace Weather.Web.Services
 
         public bool ReadExcel(IFormFile file, CancellationToken cancellationToken)
         {
-            FileInfo currentFile = new FileInfo(fullPath);
+            
             if (fullPath.Length > 0)
             {
                 using (var stream = new FileStream(fullPath, FileMode.Create))
@@ -53,7 +53,6 @@ namespace Weather.Web.Services
                     stream.Position = 0;
                     if (sFileExtension != ".xls" && sFileExtension != ".xlsx")
                     {
-                        currentFile.Delete();
                         return false;
                     }
                     if (sFileName.Length > 4)
@@ -67,7 +66,6 @@ namespace Weather.Web.Services
                         }
                         catch
                         {
-                            currentFile.Delete();
                             return false;
                         }
                     }
@@ -102,12 +100,13 @@ namespace Weather.Web.Services
 
                             if (cellCount != 12)
                             {
-                                currentFile.Delete();
                                 return false;
                             }    
 
                             IRow row = sheet.GetRow(i);
                             if (row == null) continue;
+
+                            bool SkipAdd = false;
                             for (int j = row.FirstCellNum; j < cellCount; j++)
                             {
                                 string cellValue = row.GetCell(j) == null ? string.Empty : row.GetCell(j).ToString();
@@ -116,19 +115,30 @@ namespace Weather.Web.Services
                                 {
                                     try
                                     {
-                                        allfileds[j].SetValue(weather, DateOnly.Parse(cellValue));
+                                        DateOnly.Parse(cellValue);
                                     }
-                                    finally { }
+                                    catch 
+                                    {
+                                        //TODO logging
+                                        SkipAdd = true;
+                                        break;
+                                    }
+                                    allfileds[j].SetValue(weather, DateOnly.Parse(cellValue));
                                     continue;
                                 }
 
                                 if (allfileds[j].FieldType == typeof(Double))
                                 {
                                     try 
-                                    { 
-                                        allfileds[j].SetValue(weather, Convert.ToDouble(cellValue));
+                                    {
+                                        Convert.ToDouble(cellValue);
+                                        
                                     }
-                                    finally { }
+                                    catch
+                                    {
+                                        continue;
+                                    }
+                                    allfileds[j].SetValue(weather, Convert.ToDouble(cellValue));
                                     continue;
                                 }
 
@@ -136,9 +146,13 @@ namespace Weather.Web.Services
                                 {
                                     try
                                     {
-                                        allfileds[j].SetValue(weather, cellValue.ToNullable<double>());
+                                        cellValue.ToNullable<double>();         
                                     }
-                                    finally { }
+                                    catch
+                                    {
+                                        continue;
+                                    }
+                                    allfileds[j].SetValue(weather, cellValue.ToNullable<double>());
                                     continue;
                                 }
 
@@ -146,9 +160,13 @@ namespace Weather.Web.Services
                                 {
                                     try
                                     {
-                                        allfileds[j].SetValue(weather, cellValue.ToNullable<Int32>());
+                                        cellValue.ToNullable<Int32>();    
                                     }
-                                    finally { }
+                                    catch
+                                    {
+                                        continue;
+                                    }
+                                    allfileds[j].SetValue(weather, cellValue.ToNullable<Int32>());
                                     continue;
                                 }
 
@@ -156,22 +174,35 @@ namespace Weather.Web.Services
                                 {
                                     try
                                     {
-                                        allfileds[j].SetValue(weather, TimeOnly.Parse(cellValue));
+                                        TimeOnly.Parse(cellValue);   
                                     }
-                                    finally { }
+                                    catch
+                                    {
+                                        SkipAdd = true;
+                                        break;
+                                    }
+                                    allfileds[j].SetValue(weather, TimeOnly.Parse(cellValue));
                                     continue;
                                 }
 
                                 else 
                                 {
                                     try 
-                                    { 
-                                        allfileds[j].SetValue(weather, cellValue.ToString());
+                                    {
+                                        cellValue.ToString();                                   
                                     }
-                                    finally { }
+                                    catch
+                                    {
+                                        continue;
+                                    }
+                                    allfileds[j].SetValue(weather, cellValue.ToString());
                                     continue;
                                 }
                                 
+                            }
+                            if (SkipAdd)
+                            {
+                                continue;
                             }
                             _weatherRepository.Add(weather, cancellationToken);
                         }
@@ -180,7 +211,6 @@ namespace Weather.Web.Services
                 }
                 return true;
             }
-            currentFile.Delete();
             return false;
         }
     }

@@ -54,6 +54,8 @@ namespace Weather.Web.Controllers
                     }
                     if (!_excelService.ReadExcel(file, cancellationToken))
                     {
+                        FileInfo currentFile = new FileInfo(Path.GetFullPath(_excelService.GeneratePath(file.FileName)));
+                        currentFile.Delete();
                         return Json("Wrong file type or format!");
                     };
                 }  

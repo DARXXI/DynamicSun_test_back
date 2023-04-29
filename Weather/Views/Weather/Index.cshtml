@@ -94,7 +94,7 @@
         editType: "fullRow",
         columnDefs: [
             { headerName: 'Число', field: "date", sort: 'desc', valueGetter: (params) => { return AdminPanel.Utils.dateFormatter(params.data.date) } },
-            { headerName: 'Время', field: "time"},
+            { headerName: 'Время', field: "time", sortable: false},
             { headerName: 'Температура', field: "temprature" },
             { headerName: 'Влажность', field: "humidity" },
             { headerName: 'ТР', field: "dewPoint" },

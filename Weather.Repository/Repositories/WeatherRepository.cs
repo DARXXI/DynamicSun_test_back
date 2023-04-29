@@ -37,6 +37,12 @@ namespace Weather.Repository.Repositories
             query = weatherFilter.SortOrder == Weather.Domain.Enums.SortOrder.Asc
                 ? query.OrderBy(propertyGetter)
                 : query.OrderByDescending(propertyGetter);
+            if (weatherFilter.SortColumn == "date")
+            {
+                query = weatherFilter.SortOrder == Weather.Domain.Enums.SortOrder.Asc
+                ? query.OrderBy(propertyGetter).ThenBy(t=>t.Time)
+                : query.OrderByDescending(propertyGetter).ThenByDescending(t => t.Time);
+            }
 
             query = query.Skip(weatherFilter.StartRow).Take(weatherFilter.Take);
 
@@ -49,7 +55,11 @@ namespace Weather.Repository.Repositories
         public void ClearDataByYear(int year)
         {
             var weatherToDelete = Context.Weather.Where(t=>t.Date.Year == year);
-            Context.Weather.RemoveRange(weatherToDelete);
+
+            if (weatherToDelete != null)
+            {
+                Context.Weather.RemoveRange(weatherToDelete);
+            }    
         }
 
         public void Add(Weather.Domain.Entities.Weather weather, CancellationToken cancellationToken)
