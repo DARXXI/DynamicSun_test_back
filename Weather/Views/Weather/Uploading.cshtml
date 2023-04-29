@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Погода";
+}
+
+<form method="post" action="upload" enctype="multipart/form-data" style="padding-top:30px;">
+    <div class="row">
+        <div class="col-md-4">
+            <input type="file" id="fUpload" name="files" class="form-control" accept=".xls,.xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" multiple />
+        </div>
+        <div class="col-md-8">
+            <input type="submit" id="btnUpload" value="Upload" class="btn btn-light btn-outline-dark" />
+        </div>
+    </div>
+</form>

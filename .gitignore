@@ -1,0 +1,25 @@
+# config
+appsettings.Development.json
+launchSettings.json
+NLog.Development.config
+
+[Bb]in/
+[Oo]bj/
+.idea/
+.vs/
+
+Weather.Moscow.2010-2014
+
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+/temp/
+
+node_modules

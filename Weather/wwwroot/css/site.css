@@ -1,0 +1,345 @@
+/*html {
+  font-size: 14px;
+}*/
+
+
+.window-size {
+    min-height: calc(100vh - 57px);
+}
+
+.text-end a {
+    height: 37px;
+    padding: 0 5px 0 1px;
+}
+
+.title {
+    display: flex;
+    justify-content: center;
+}
+
+.container li {
+    padding: 0 1vw 0 1vw;
+}
+
+
+.container a {
+    padding: 1px;
+}
+
+.outer-div {
+    padding: 0px 0px 8px 0px; 
+}
+
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+}
+
+a {
+    color: #1779ba;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+}
+
+.custom-buttons .btn {
+    margin-bottom: 1rem;
+    width: 100px;
+}
+
+.custom-buttons {
+    width:25%;
+    justify-content: space-between;
+}
+
+.error {
+    color: red;
+}
+
+.myfooter {
+    position: static;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1030;
+    height: 57px;
+    align-items: center;
+    display: flex;
+}
+
+
+.floated-label-wrapper {
+    position: relative;
+}
+
+.floated-label-wrapper label {
+    background: #fefefe;
+    color: #1779ba;
+    font-size: 0.75rem;
+    font-weight: 600;
+    left: 0.75rem;
+    opacity: 1;
+    margin: 0.25rem 0 0.25rem 0;
+    position: absolute;
+    top: 2rem;
+    transition: all 0.15s ease-in;
+    z-index: -1;
+}
+
+.floated-label-wrapper label input[type=text],
+.floated-label-wrapper label input[type=email],
+.floated-label-wrapper label input[type=password] {
+    border-radius: 0.375rem;
+    font-size: 1.75em;
+    padding: 0.5em;
+}
+
+.floated-label-wrapper label.show {
+    opacity: 1;
+    top: -0.85rem;
+    z-index: 1;
+    transition: all 0.15s ease-in; 
+}
+
+.central {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0 auto;
+    width: 400px;
+}
+
+
+.social-footer {
+    padding: 1rem;
+    background:darkgrey;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+}
+
+.social-footer .social-footer-icons li:last-of-type {
+    margin-right: 0;
+}
+
+.social-footer .social-footer-icons .fa {
+    font-size: 1.3rem;
+    color: darkgrey;
+}
+
+.social-footer .social-footer-icons .fa:hover {
+    color: #4a4a4a;
+    transition: color 0.3s ease-in;
+}
+
+.button.expanded {
+    border-radius: 0.375rem;
+}
+
+.central label {
+    color: red;
+}
+
+.container-fluid {
+    min-height: calc(100vh - 175px);
+}
+
+
+.dropdown-item:focus, dropdown-item:hover, dropdown-item:active {
+    color: black;
+    background-color: #f8f9fa;
+}
+
+.profile-circle {
+    width: 156px;
+    height: 156px;
+    object-fit: cover;
+}
+
+.dz-image {
+    width: 156px;
+    height: 156px;
+}
+
+.dz-image img {
+    width: 156px;
+    height: 156px;
+
+    border-radius: 100px; 
+    box-shadow: 0 0 7px #666; 
+
+    object-fit: cover;
+}
+
+.dropzone .dz-preview .dz-image {
+    border-radius: 100px;
+    object-fit: cover;
+    width: auto;
+    height: auto;
+    position: relative;
+    display: block;
+    z-index: 10;
+}
+
+.dropzone .dz-preview {
+    margin: 0; 
+}
+    
+.dropzone .dz-message {
+    text-align: center;
+    margin: 40% auto;
+    display: block;
+    position: relative;
+}
+
+.dz-details {
+    margin: 15% auto;
+    display: block;
+    position: relative;
+}
+
+.dropzone {
+    min-height: 156px;
+    padding: 0 0 0 0;
+    background: none;
+    width: auto ;
+    height: auto;
+    margin: -2px;
+}
+
+.navbar-brand {
+    height: 50px;
+}
+
+.dropzone .dz-preview.dz-image-preview {
+    background: none; 
+}
+
+.navbar-brand a {
+    height: 50px;
+    align-items: center;
+}
+
+.dropdown {
+    padding: 0 0.5vw 0 0.5vw;
+    display: flex;
+    align-items: center;
+}
+
+.round {
+    border-radius: 100px; 
+    box-shadow: 0 0 7px #666;
+}
+
+.cropped {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+img {
+    max-width:none ;
+}
+
+.red {
+    color: red;
+}
+
+.action-button {
+    border: none;
+    color: white;
+    padding: 3px 12px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    opacity: 0.7;
+}
+
+.action-button:hover {
+    opacity: 1;
+}
+
+.action-button.edit {
+    background-color: #008cba; /* Blue */
+}
+
+.action-button.update {
+    background-color: #4caf50; /* Green */
+}
+
+.action-button.delete {
+    background-color: #f44336; /* Red */
+}
+
+.action-button.cancel {
+    background-color: #e7e7e7; /* Gray */
+    color: black;
+}
+
+.chat .card-footer *{
+    margin: 0 0 0 0;
+}
+
+.outer-div input{
+    position:absolute;
+    left:0;
+    width:242px;
+    margin: 12px;
+}
+
+.outer-div .filter{
+    display:flex;
+    flex-direction:row;
+}
+
+.outer-div .takedate {
+    position: absolute;
+    left: 243.5px;
+    width: 120px;
+    margin: 12px;
+}

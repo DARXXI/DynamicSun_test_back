@@ -1,0 +1,131 @@
+﻿@{
+    ViewData["Title"] = "Пользователи";
+}
+
+@model  Weather.Domain.Entities.Weather[]
+
+<div class="outer-div">
+    
+    <div class="title">
+        <div class="filering">
+            <input type="month" id="myMonth" value="@DateTime.Now.Year">
+        </div>
+        <h1>Погода</h1>
+    </div>
+</div>
+
+<div id="myGrid" class="ag-theme-alpine" style="height: calc(100vh - 200px)"></div>
+
+<script src="~/lib/moment/moment-with-locales.min.js"></script>
+<script src="~/lib/agGrid/agGrid-locale/locale.ru.js"></script>
+<script src="~/lib/agGrid/agGrid-bones/ag-grid-enterprise.min.js"></script>
+<script src="~/lib/agGrid/agGrid-bones/agGrid-bones.js"></script>
+<script type="text/javascript">
+    function actionCellRenderer(params) {
+        let eGui = document.createElement("div");
+
+        let editingCells = params.api.getEditingCells();
+        // checks if the rowIndex matches in at least one of the editing cells
+        let isCurrentRowEditing = editingCells.some((cell) => {
+            return cell.rowIndex === params.node.rowIndex;
+        });
+
+        if (isCurrentRowEditing) {
+            eGui.innerHTML = `
+                    <button
+                      class="action-button update"
+                      data-action="update">
+                           update
+                    </button>
+                    <button
+                      class="action-button cancel"
+                      data-action="cancel">
+                           cancel
+                    </button>
+                    `;
+        } else {
+            eGui.innerHTML = `
+                    <button
+                      class="action-button edit"
+                      data-action="edit">
+                         edit
+                      </button>
+                    <button
+                          class="action-button delete btnDelete"
+                      data-action="delete">
+                         delete
+                    </button>
+                    `;
+        }
+        return eGui;
+    };
+
+
+    var gridOptions = {
+        suppressClickEdit: true,
+        onCellClicked(params) {
+            // Handle click event for action cells
+            if (params.column.colId === "action" && params.event.target.dataset.action) {
+                let action = params.event.target.dataset.action;
+
+                if (action === "update") {
+                    params.api.stopEditing(false);
+                }
+
+                if (action === "cancel") {
+                    params.api.stopEditing(true);
+                }
+            }
+        },
+        onRowEditingStarted: (params) => {
+            params.api.refreshCells({
+                columns: ["action"],
+                rowNodes: [params.node],
+                force: true
+            });
+        },
+        onRowEditingStopped: (params) => {
+            params.api.refreshCells({
+                columns: ["action"],
+                rowNodes: [params.node],
+                force: true
+            });
+        },
+        editType: "fullRow",
+        columnDefs: [
+            { headerName: 'Число', field: "date", sort: 'desc', valueGetter: (params) => { return AdminPanel.Utils.dateFormatter(params.data.date) } },
+            { headerName: 'Время', field: "time"},
+            { headerName: 'Температура', field: "temprature" },
+            { headerName: 'Влажность', field: "humidity" },
+            { headerName: 'ТР', field: "dewPoint" },
+            { headerName: 'Давление', field: "pressure" },
+            { headerName: 'НВ', field: "windDirection"},
+            { headerName: 'Скорость ветра', field: "windSpeed" },
+            { headerName: 'Облачность', field: "cloudness" },
+            { headerName: 'НГО', field: "lowCloudBoundary" },
+            { headerName: 'Видимость', field: "visibility"},
+            { headerName: 'ПЯ', field: "note"},
+        ],
+        defaultColDef: {
+            flex: 1,
+            minWidth: 120,
+            resizable: true,
+            sortable: true,
+            editable: true
+        },
+
+        rowModelType: 'serverSide',
+        serverSideInfiniteScroll: true,
+
+        pagination: true,
+        // 10 rows per page (default is 100)
+        paginationPageSize: 12,
+        // fetch 10 rows per block as page size is 10 (default is 100)
+        cacheBlockSize: 10,
+
+        animateRows: true,
+    };
+
+    var localeText = AG_GRID_LOCALE_RU;
+    gridInit('@Url.Action("GetData", "Weather")', 'myGrid');
+</script>
