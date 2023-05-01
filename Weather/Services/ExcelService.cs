@@ -40,178 +40,201 @@ namespace Weather.Web.Services
             return fullPath;
         }
 
-        public bool ReadExcel(IFormFile file, CancellationToken cancellationToken)
+        public bool ReadExcel(IFormFile file,out string error,  CancellationToken cancellationToken)
         {
-            
-            if (fullPath.Length > 0)
+            try
             {
-                using (var stream = new FileStream(fullPath, FileMode.Create))
+                if (fullPath.Length > 0)
                 {
-                    string sFileExtension = Path.GetExtension(file.FileName).ToLower();
-                    string sFileName = Path.GetFileNameWithoutExtension(file.FileName);
-                    file.CopyTo(stream);
-                    stream.Position = 0;
-                    if (sFileExtension != ".xls" && sFileExtension != ".xlsx")
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
                     {
-                        return false;
-                    }
-                    if (sFileName.Length > 4)
-                    {
-                        string yearStr = sFileName.Substring(sFileName.Length - 4);
-                        try
+                        string sFileExtension = Path.GetExtension(file.FileName).ToLower();
+                        string sFileName = Path.GetFileNameWithoutExtension(file.FileName);
+                        file.CopyTo(stream);
+                        stream.Position = 0;
+                        if (sFileExtension != ".xls" && sFileExtension != ".xlsx")
                         {
-                            int year = Convert.ToInt32(yearStr);
-                            //delete where sqlyear = year
-                            _weatherRepository.ClearDataByYear(year);
-                        }
-                        catch
-                        {
+                            error = "Неправильное расширение файла!";
                             return false;
                         }
-                    }
-                    List<ISheet> sheets = new List<ISheet>();
-                    if (sFileExtension == ".xls")
-                    {
-                        HSSFWorkbook hssfwb = new HSSFWorkbook(stream); //This will read the Excel 97-2000 formats
-                        for (int i = 0; i< hssfwb.NumberOfSheets; i++)
-                            sheets.Add(hssfwb.GetSheetAt(i));
-                    }
-                    else //xlsx
-                    {
-                        XSSFWorkbook hssfwb = new XSSFWorkbook(stream); //This will read 2007 Excel format
-                        for (int i = 0; i < hssfwb.NumberOfSheets; i++)
-                            sheets.Add(hssfwb.GetSheetAt(i));
-                    }
-                    foreach(var sheet in sheets)
-                    { 
-                        IRow headerRow = sheet.GetRow(2); //Get Header Row
-                        int cellCount = headerRow.LastCellNum;
-                        for (int j = 0; j < cellCount; j++)
+                        if (sFileName.Length > 4)
                         {
-                            NPOI.SS.UserModel.ICell cell = headerRow.GetCell(j);
-                            if (cell == null || string.IsNullOrWhiteSpace(cell.ToString())) continue;
+                            string yearStr = sFileName.Substring(sFileName.Length - 4);
+                            if (yearStr.Length < 4)
+                            {
+                                error = "Неправильное название файла!";
+                                return false;
+                            }
+                            try
+                            {
+                                int year = Convert.ToInt32(yearStr);
+                                //delete where sqlyear = year
+                                _weatherRepository.ClearDataByYear(year);
+                            }
+                            catch
+                            {
+                                error = "Неправильный формат файла!";
+                                return false;
+                            }
                         }
-                        for (int i = (sheet.FirstRowNum + 4); i <= sheet.LastRowNum; i++) //Read Excel File TABLE 
+                        List<ISheet> sheets = new List<ISheet>();
+                        if (sFileExtension == ".xls")
                         {
-                           //New Weather
-                            Weather.Domain.Entities.Weather weather = new();
-                            var allfileds = weather.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic
-                                | BindingFlags.Public | BindingFlags.Static).ToArray();
-
+                            HSSFWorkbook hssfwb = new HSSFWorkbook(stream); //This will read the Excel 97-2000 formats
+                            for (int i = 0; i< hssfwb.NumberOfSheets; i++)
+                                sheets.Add(hssfwb.GetSheetAt(i));
+                        }
+                        else //xlsx
+                        {
+                            XSSFWorkbook hssfwb = new XSSFWorkbook(stream); //This will read 2007 Excel format
+                            for (int i = 0; i < hssfwb.NumberOfSheets; i++)
+                                sheets.Add(hssfwb.GetSheetAt(i));
+                        }
+                        foreach(var sheet in sheets)
+                        { 
+                            IRow headerRow = sheet.GetRow(2); //Get Header Row
+                            if (headerRow == null)
+                            {
+                                error = "Неправильный формат файла!";
+                                return false;
+                            }
+                            int cellCount = headerRow.LastCellNum;
                             if (cellCount != 12)
                             {
+                                error = "Неправильный формат файла!";
                                 return false;
-                            }    
-
-                            IRow row = sheet.GetRow(i);
-                            if (row == null) continue;
-
-                            bool SkipAdd = false;
-                            for (int j = row.FirstCellNum; j < cellCount; j++)
+                            }
+                            for (int j = 0; j < cellCount; j++)
                             {
-                                string cellValue = row.GetCell(j) == null ? string.Empty : row.GetCell(j).ToString();
+                                NPOI.SS.UserModel.ICell cell = headerRow.GetCell(j);
+                                if (cell == null || string.IsNullOrWhiteSpace(cell.ToString())) continue;
+                            }
+                            for (int i = (sheet.FirstRowNum + 4); i <= sheet.LastRowNum; i++) //Read Excel File TABLE 
+                            {
+                               //New Weather
+                                Weather.Domain.Entities.Weather weather = new();
+                                var allfileds = weather.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic
+                                    | BindingFlags.Public | BindingFlags.Static).ToArray(); 
 
-                                if (allfileds[j].FieldType == typeof(DateOnly))
-                                {
-                                    try
-                                    {
-                                        DateOnly.Parse(cellValue);
-                                    }
-                                    catch 
-                                    {
-                                        //TODO logging
-                                        SkipAdd = true;
-                                        break;
-                                    }
-                                    allfileds[j].SetValue(weather, DateOnly.Parse(cellValue));
-                                    continue;
-                                }
+                                IRow row = sheet.GetRow(i);
+                                if (row == null) continue;
 
-                                if (allfileds[j].FieldType == typeof(Double))
+                                bool SkipAdd = false;
+                                for (int j = row.FirstCellNum; j < cellCount; j++)
                                 {
-                                    try 
+                                    string cellValue = row.GetCell(j) == null ? string.Empty : row.GetCell(j).ToString();
+
+                                    if (allfileds[j].FieldType == typeof(DateOnly))
                                     {
-                                        Convert.ToDouble(cellValue);
+                                        try
+                                        {
+                                            DateOnly.Parse(cellValue);
+                                        }
+                                        catch 
+                                        {
+                                            //TODO logging
+                                            error = "Неправильный формат данных!";
+                                            SkipAdd = true;
+                                            break;
+                                        }
+                                        allfileds[j].SetValue(weather, DateOnly.Parse(cellValue));
+                                        continue;
+                                    }
+
+                                    if (allfileds[j].FieldType == typeof(Double))
+                                    {
+                                        try 
+                                        {
+                                            Convert.ToDouble(cellValue);
                                         
-                                    }
-                                    catch
-                                    {
+                                        }
+                                        catch
+                                        {
+                                            continue;
+                                        }
+                                        allfileds[j].SetValue(weather, Convert.ToDouble(cellValue));
                                         continue;
                                     }
-                                    allfileds[j].SetValue(weather, Convert.ToDouble(cellValue));
-                                    continue;
-                                }
 
-                                if (allfileds[j].FieldType == typeof(Nullable<Double>))
-                                {
-                                    try
+                                    if (allfileds[j].FieldType == typeof(Nullable<Double>))
                                     {
-                                        cellValue.ToNullable<double>();         
-                                    }
-                                    catch
-                                    {
+                                        try
+                                        {
+                                            cellValue.ToNullable<double>();         
+                                        }
+                                        catch
+                                        {
+                                            continue;
+                                        }
+                                        allfileds[j].SetValue(weather, cellValue.ToNullable<double>());
                                         continue;
                                     }
-                                    allfileds[j].SetValue(weather, cellValue.ToNullable<double>());
-                                    continue;
-                                }
 
-                                if (allfileds[j].FieldType == typeof(Nullable<Int32>))
-                                {
-                                    try
+                                    if (allfileds[j].FieldType == typeof(Nullable<Int32>))
                                     {
-                                        cellValue.ToNullable<Int32>();    
-                                    }
-                                    catch
-                                    {
+                                        try
+                                        {
+                                            cellValue.ToNullable<Int32>();    
+                                        }
+                                        catch
+                                        {
+                                            continue;
+                                        }
+                                        allfileds[j].SetValue(weather, cellValue.ToNullable<Int32>());
                                         continue;
                                     }
-                                    allfileds[j].SetValue(weather, cellValue.ToNullable<Int32>());
-                                    continue;
-                                }
 
-                                if (allfileds[j].FieldType == typeof(TimeOnly))
-                                {
-                                    try
+                                    if (allfileds[j].FieldType == typeof(TimeOnly))
                                     {
-                                        TimeOnly.Parse(cellValue);   
-                                    }
-                                    catch
-                                    {
-                                        SkipAdd = true;
-                                        break;
-                                    }
-                                    allfileds[j].SetValue(weather, TimeOnly.Parse(cellValue));
-                                    continue;
-                                }
-
-                                else 
-                                {
-                                    try 
-                                    {
-                                        cellValue.ToString();                                   
-                                    }
-                                    catch
-                                    {
+                                        try
+                                        {
+                                            TimeOnly.Parse(cellValue);   
+                                        }
+                                        catch
+                                        {
+                                            error = "Неправильный формат данных!";
+                                            SkipAdd = true;
+                                            break;
+                                        }
+                                        allfileds[j].SetValue(weather, TimeOnly.Parse(cellValue));
                                         continue;
                                     }
-                                    allfileds[j].SetValue(weather, cellValue.ToString());
-                                    continue;
-                                }
+
+                                    else 
+                                    {
+                                        try 
+                                        {
+                                            cellValue.ToString();                                   
+                                        }
+                                        catch
+                                        {
+                                            continue;
+                                        }
+                                        allfileds[j].SetValue(weather, cellValue.ToString());
+                                        continue;
+                                    }
                                 
+                                }
+                                if (SkipAdd)
+                                {
+                                    continue;
+                                }
+                                _weatherRepository.Add(weather, cancellationToken);
                             }
-                            if (SkipAdd)
-                            {
-                                continue;
-                            }
-                            _weatherRepository.Add(weather, cancellationToken);
+                            _weatherRepository.Update();
                         }
-                        _weatherRepository.Update();
                     }
+                    error = "";
+                    return true;
                 }
-                return true;
+                error = "Ошибка чтения файла!";
+                return false;
             }
-            return false;
+            catch
+            {
+                error = "Ошибка чтения файла!";
+                return false;
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ using Weather.Repository.Repositories.Interfaces;
 using Weather.Domain.Entities;
 using Weather.Web.Services;
 using Weather.Web.Services.Interfaces;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -14,7 +14,7 @@
     </div>
 </div>
 
-<div id="myGrid" class="ag-theme-alpine" style="height: calc(100vh - 200px)"></div>
+<div id="myGrid" class="ag-theme-alpine" style="height: calc(100vh - 190px)"></div>
 
 <script src="~/lib/moment/moment-with-locales.min.js"></script>
 <script src="~/lib/agGrid/agGrid-locale/locale.ru.js"></script>
@@ -62,6 +62,7 @@
 
 
     var gridOptions = {
+        rowHeight:35,
         suppressClickEdit: true,
         onCellClicked(params) {
             // Handle click event for action cells
@@ -107,6 +108,7 @@
             { headerName: 'ПЯ', field: "note"},
         ],
         defaultColDef: {
+            autoHeight: true,
             flex: 1,
             minWidth: 120,
             resizable: true,
@@ -119,7 +121,7 @@
 
         pagination: true,
         // 10 rows per page (default is 100)
-        paginationPageSize: 12,
+        paginationPageSize: 15,
         // fetch 10 rows per block as page size is 10 (default is 100)
         cacheBlockSize: 10,
 
